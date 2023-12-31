@@ -13,11 +13,12 @@ const PORT = 8080;
 try {
     await db.authenticate();
     console.log('Connection to database has been established successfully.');
+
     const [results, metadata] = await db.query(`
       SELECT column_name, data_type
       FROM information_schema.columns
       WHERE table_schema = 'public'
-      AND table_name = 't_order_mobile';
+      AND table_name = 't_inchip';
     `);
 
     // Extract column information from the results
@@ -26,7 +27,7 @@ try {
         type: result.data_type,
     }));
 
-    console.log('Columns of s_chip table:', columns);
+    console.log('Columns of t_inchip table:', columns);
 
 } catch (error) {
     console.error('Unable to connect to the database:', error);

@@ -7,40 +7,81 @@ const generateUUID = () => {
     return uuidv4();
 };
 
-export const getChip = async (req, res) => {
-    try {
-        const [results2, metadata2] = await db.query(`
-      SELECT *
-      FROM s_chip
---      JOIN s_provider ON s_chip.s_id_provider = s_provider.id
-      ORDER BY s_chip.s_saldo ASC, s_chip.updated_at DESC
-      LIMIT 1;
-    `);
+async function getNextCS() {
+    const getCSQuery = `
+    SELECT * FROM t_order_mobile 
+    ORDER BY CAST(id AS INT) DESC
+    LIMIT 1
+  `;
 
-        res.json(results2);
-    } catch (error) {
-        handleSequelizeError(error, res)
+    // Count the number of active customer services
+    const countCSQuery = `
+    SELECT COUNT(*) as count FROM s_customer_services 
+    WHERE s_status = 'true'
+  `;
+
+    // Get the list of active customer services
+    const listCSQuery = `
+    SELECT id FROM s_customer_services 
+    WHERE s_status = 'true'
+  `;
+
+    const [getCSPromise, metadata] = await db.query(getCSQuery);
+    const [countCSPromise, metadata2] = await db.query(countCSQuery);
+    const [listCSPromise, metadata3] = await db.query(listCSQuery);
+
+    const [getCS, countCS, listCS] = await Promise.all([getCSPromise, countCSPromise, listCSPromise]);
+
+    const countFinal = parseInt(countCS[0].count);
+    const getCsFinal = getCS[0] ? parseInt(getCS[0].t_id_cs) : -1;
+    const listCSFinal = listCS.map(item => parseInt(item.id, 10));
+
+    console.log("getCsFinal"); //[ { count: '2' } ]
+    console.log(getCsFinal); // 1, 2, 3
+    console.log("countFinal"); //[ { count: '2' } ]
+    console.log(countFinal); // 1, 2, 3
+
+
+    let nextCS = null;
+
+
+    if (countCS === 1) {
+        nextCS = listCS[0];
+    } else {
+        for (const cs of listCSFinal) {
+            console.log("getCsFinal");
+            console.log(getCsFinal);
+            console.log("countFinal");
+            console.log(countFinal);
+            if (getCsFinal === -1 || getCsFinal === countFinal) {
+                nextCS = cs;
+
+
+                break;
+            } else if (getCsFinal !== -1 && getCsFinal >= cs) {
+                continue;
+            } else {
+                nextCS = cs;
+                break;
+            }
+        }
     }
-}
-
-export const updateChip = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const [results, metadata] = await db.query(`
-            UPDATE s_chip SET s_saldo = '${req.body.s_saldo}' WHERE id = '${id}'
-        `);
-
-        res.json({results, id});
-    } catch (error) {
-        handleSequelizeError(error, res)
-    }
+    return [nextCS];
 }
 
 export const createOrder = async (req, res) => {
     try {
         const uuid = generateUUID(); // Assuming you have a function to generate a UUID
+        const [nextCS] = await getNextCS(); // Get the next customer service ID
 
-        const [results, metadata] = await db.query(` 
+        const [inChip, metadata2] = await db.query(`
+          SELECT *
+          FROM t_inchip
+          WHERE t_id_cs = '${nextCS}' AND t_id_provider = '${req.body.t_id_provider}'
+          ORDER BY updated_at DESC
+        `);
+
+        const [results, metadata] = await db.query(`
         INSERT INTO t_order_mobile (
             uuid,
             t_id_transaksi,
@@ -84,7 +125,7 @@ export const createOrder = async (req, res) => {
             '${req.body.t_fee}',
             '${req.body.t_total_jumlah_pembayaran}',
             '${req.body.t_id_via}',
-            '${req.body.t_id_cs}',
+            '${nextCS}',
             '${req.body.t_id_chip}',
             '${req.body.t_id_user}',
             '${req.body.t_file_pulsa}',
@@ -96,20 +137,63 @@ export const createOrder = async (req, res) => {
         )
     `);
 
-    res.json(results);
+    res.json({
+        inchip: inChip[0] ? inChip[0] : null,
+        cs: nextCS,
+    });
 
     } catch (error) {
         handleSequelizeError(error, res)
     }
 }
 
+
+export const getTutorial = async (req, res) => {
+    try {
+        const { idProvider } = req.params;
+        const phoneNumber = req.query.number;
+        const nominal = req.query.nominal;
+
+        const [results, metadata] = await db.query(`
+          SELECT *
+          FROM s_tutorial
+          WHERE t_id_provider = '${idProvider}'
+        `);
+
+        const updatedResults = results.map(item => {
+            // Replace [nomor admin] with the custom variable in the s_ket string
+            const updatedSket = item.s_ket.replace('[nomor admin]', phoneNumber);
+            const updatedSket2 = updatedSket.replace('[nominal]', nominal);
+
+            // Return a new object with the updated s_ket value
+            return {
+                ...item,
+                s_ket: updatedSket2
+            };
+        });
+
+        res.json({
+            results: updatedResults
+        });
+
+    } catch (error) {
+
+    }
+}
+
+
 export const getOrders = async (req, res) => {
     try {
-        const [results, metadata] = await db.query(`
+     const [results, metadata] = await db.query(`
       SELECT *
       FROM t_order_mobile
       ORDER BY t_order_mobile.t_tgl_transaksi DESC
     `);
+
+    //     db.query(`
+    //   DELETE FROM t_order_mobile
+    // `)
+
 
         res.json(results);
     } catch (error) {
