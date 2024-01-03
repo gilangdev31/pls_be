@@ -186,13 +186,14 @@ export const createOrder = async (req, res) => {
             CURRENT_TIMESTAMP,
             CURRENT_TIMESTAMP,
             'false'
-        )
+        ) RETURNING id
     `);
 
     res.json({
         inchip: inChip[0] ? inChip[0] : null,
         cs: nextCS,
-        idTransaction: req.body.t_id_transaksi
+        idTransaction: req.body.t_id_transaksi,
+        id: results[0].id
     });
 
     } catch (error) {
