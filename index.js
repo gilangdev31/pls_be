@@ -4,11 +4,15 @@ import router from './routes/index.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import path, {dirname} from "path";
+import {fileURLToPath} from "url";
 
 dotenv.config();
 
 const app = express();
 const PORT = 8080;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 try {
     await db.authenticate();
@@ -18,7 +22,7 @@ try {
       SELECT column_name, data_type
       FROM information_schema.columns
       WHERE table_schema = 'public'
-      AND table_name = 't_inchip';
+      AND table_name = 't_upload_order';
     `);
 
     // Extract column information from the results
@@ -27,7 +31,7 @@ try {
         type: result.data_type,
     }));
 
-    console.log('Columns of t_inchip table:', columns);
+    console.log('Columns of t_upload_order table:', columns);
 
 } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -40,6 +44,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(router)
+app.use('/uploads', express.static(path.join(__dirname, '/controller/uploads')));
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
