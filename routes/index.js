@@ -8,7 +8,7 @@ import {
 } from "../controller/Category.js";
 import {
     createOrder, fileUploads, getFilesClient,
-    getOrders,
+    getOrders, getStatus,
     getTimer,
     getTutorial,
     updateFilesClient,
@@ -26,5 +26,6 @@ router.post('/api/v1/upload_files/:id',fileUploads, updateFilesClient);
 router.get('/api/v1/files', getFilesClient);
 
 router.get('/api/v1/tutorial/:idProvider', getTutorial);
+router.get('/api/v1/status', getStatus);
 
 export default router;

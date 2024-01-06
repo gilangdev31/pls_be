@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
         cb(null, uploadsDirectory); // Destination folder where files will be stored
     },
     filename: function (req, file, cb) {
-        cb(null, `${file.fieldname}-${getCurrentFormattedDate()}${path.extname(file.originalname)}`);
+        cb(null, `${file.fieldname}-${getCurrentFormattedDate()}__${Math.floor(Math.random() * 9000) + 1000}${path.extname(file.originalname)}`);
     },
 });
 
@@ -316,7 +316,13 @@ export const updateFilesClient = async (req, res) => {
         Promise.all([async1])
             .then(() => {
                 // All records inserted successfully
-                res.status(200).send('Photos inserted successfully');
+                res.status(200).json(
+                    {
+                        message: "Photos uploaded successfully",
+                        size: photos.length,
+                        photos: photos
+                    }
+                );
             })
             .catch(error => {
                 // Handle any errors that occurred during insertion
@@ -341,6 +347,22 @@ export const getFilesClient = async (req, res) => {
         `);
 
         res.json(results);
+    } catch (e) {
+
+    }
+}
+
+export const getStatus = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM s_status
+        `);
+
+        res.json({
+            results: results
+        });
     } catch (e) {
 
     }
