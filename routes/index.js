@@ -7,11 +7,11 @@ import {
     updateCategories
 } from "../controller/Category.js";
 import {
-    createOrder, fileUploads, getFilesClient,
-    getOrders, getStatus,
+    createOrder, fileUploads, getChip, getFilesClient,
+    getOrders, getStatus, getStatusNumber,
     getTimer,
     getTutorial,
-    updateFilesClient,
+    updateFilesClient, updateOrderChip,
     updateStatusOrder
 } from "../controller/MainApi.js";
 
@@ -27,5 +27,9 @@ router.get('/api/v1/files', getFilesClient);
 
 router.get('/api/v1/tutorial/:idProvider', getTutorial);
 router.get('/api/v1/status', getStatus);
+router.get('/api/v1/chip', getChip);
+router.get('/api/v1/status_number/:id', getStatusNumber);
+
+router.put('/api/v1/update_order_chip/:id', updateOrderChip);
 
 export default router;

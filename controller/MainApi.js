@@ -348,7 +348,7 @@ export const getFilesClient = async (req, res) => {
 
         res.json(results);
     } catch (e) {
-
+        handleSequelizeError(e, res)
     }
 }
 
@@ -364,6 +364,71 @@ export const getStatus = async (req, res) => {
             results: results
         });
     } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
 
+export const getChip = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM s_chip
+        `);
+
+        res.json({
+            results: results
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+export const getStatusNumber = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_order_mobile
+            WHERE t_order_mobile.id = '${id}'
+        `);
+
+        var nomor = null;
+
+        if (results[0]) {
+            const [results2, metadata2] = await db.query(`
+            SELECT *
+            FROM s_chip
+            WHERE s_chip.id = '${results[0].t_id_chip}'
+        `);
+            if(results2[0]) {
+                nomor = results2[0].s_nomor;
+            }
+        }
+
+        res.json({
+            nomor: nomor
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+
+export const updateOrderChip = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            UPDATE t_order_mobile SET t_id_chip = '${req.body.t_id_chip}' WHERE id = '${id}'
+            RETURNING id
+        `);
+
+        res.json({
+            results: results,
+            t_id_chip: req.body.t_id_chip,
+            id: id
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
     }
 }
