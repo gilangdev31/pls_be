@@ -120,6 +120,11 @@ export const createOrder = async (req, res) => {
         const uuid = generateUUID(); // Assuming you have a function to generate a UUID
         const [nextCS] = await getNextCS(); // Get the next customer service ID
 
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
         const [inChip, metadata2] = await db.query(`
           SELECT *
           FROM t_inchip
@@ -183,8 +188,8 @@ export const createOrder = async (req, res) => {
             NULL,
             '${req.body.t_id_verifikasi}',
             '${req.body.t_ket}',
-            CURRENT_TIMESTAMP,
-            CURRENT_TIMESTAMP,
+            '${currentTime}',
+            '${currentTime}',
             NULL
         ) RETURNING id
     `);
@@ -193,7 +198,8 @@ export const createOrder = async (req, res) => {
         inchip: inChip[0] ? inChip[0] : null,
         cs: nextCS,
         idTransaction: req.body.t_id_transaksi,
-        id: results[0].id
+        id: results[0].id,
+        currentTime: currentTime
     });
 
     } catch (error) {
@@ -274,9 +280,14 @@ export const getOrders = async (req, res) => {
 
 export const updateStatusOrder = async (req, res) => {
     try {
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
         const { id } = req.params;
         const [results, metadata] = await db.query(`
-            UPDATE t_order_mobile SET is_done = '${req.body.is_done}' WHERE id = '${id}'
+            UPDATE t_order_mobile SET is_done = '${req.body.is_done}', updated_at = '${currentTime}' WHERE id = '${id}'
         `);
 
         res.json(results);
@@ -289,6 +300,12 @@ export const updateFilesClient = async (req, res) => {
     try {
         const photos = req.files;
         const { id } = req.params;
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
+
         const async1 = photos.map(photo => {
             const baseUrl = `${req.protocol}://${req.get('host')}`;
             const pathName = photo.filename; // Replace with the actual pathName property from your file object
@@ -307,8 +324,8 @@ export const updateFilesClient = async (req, res) => {
                 ) VALUES (
                     '${id}',
                     '${t_nama}',
-                    CURRENT_TIMESTAMP,
-                    CURRENT_TIMESTAMP,
+                    '${currentTime}',
+                    '${currentTime}',
                     '-1'
                 )
             `);
@@ -455,8 +472,15 @@ export const getStatusOder = async (req, res) => {
 export const updateOrderChip = async (req, res) => {
     try {
         const {id} = req.params;
+
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
+
         const [results, metadata] = await db.query(`
-            UPDATE t_order_mobile SET t_id_chip = '${req.body.t_id_chip}' WHERE id = '${id}'
+            UPDATE t_order_mobile SET t_id_chip = '${req.body.t_id_chip}', updated_at = '${currentTime}' WHERE id = '${id}'
             RETURNING id
         `);
 
@@ -473,8 +497,14 @@ export const updateOrderChip = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
     try {
         const {id} = req.params;
+
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
         const [results, metadata] = await db.query(`
-            UPDATE t_order_mobile SET is_valid = '${req.body.is_valid}', is_done = '${req.body.is_done}', is_success = '${req.body.is_success}' WHERE id = '${id}'
+            UPDATE t_order_mobile SET is_valid = '${req.body.is_valid}', is_done = '${req.body.is_done}', is_success = '${req.body.is_success}', updated_at = '${currentTime}' WHERE id = '${id}'
             RETURNING id
         `);
 
