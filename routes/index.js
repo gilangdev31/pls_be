@@ -7,11 +7,11 @@ import {
     updateCategories
 } from "../controller/Category.js";
 import {
-    createOrder, fileUploads, getChip, getFilesClient,
-    getOrders, getStatus, getStatusNumber,
+    createOrder, fileUploads, getChip, getFilesClient, getFilesClientByIdTransaksi,
+    getOrders, getStatus, getStatusNumber, getStatusOder,
     getTimer,
     getTutorial,
-    updateFilesClient, updateOrderChip,
+    updateFilesClient, updateOrderChip, updateOrderStatus,
     updateStatusOrder
 } from "../controller/MainApi.js";
 
@@ -24,12 +24,15 @@ router.get('/api/v1/timer', getTimer);
 router.post('/api/v1/upload_files/:id',fileUploads, updateFilesClient);
 
 router.get('/api/v1/files', getFilesClient);
+router.get('/api/v1/files/:id', getFilesClientByIdTransaksi);
 
 router.get('/api/v1/tutorial/:idProvider', getTutorial);
 router.get('/api/v1/status', getStatus);
 router.get('/api/v1/chip', getChip);
 router.get('/api/v1/status_number/:id', getStatusNumber);
+router.get('/api/v1/status_order/:id', getStatusOder);
 
 router.put('/api/v1/update_order_chip/:id', updateOrderChip);
+router.put('/api/v1/update_order_status/:id', updateOrderStatus);
 
 export default router;

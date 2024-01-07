@@ -177,15 +177,15 @@ export const createOrder = async (req, res) => {
             '${nextCS}',
             '${req.body.t_id_chip}',
             '${req.body.t_id_user}',
-            '${req.body.t_file_pulsa}',
-            '${req.body.t_file_pembayaran}',
-            '${req.body.is_valid}',
-            '${req.body.is_done}',
+            NULL,
+            NULL,
+            NULL,
+            NULL,
             '${req.body.t_id_verifikasi}',
             '${req.body.t_ket}',
             CURRENT_TIMESTAMP,
             CURRENT_TIMESTAMP,
-            'false'
+            NULL
         ) RETURNING id
     `);
 
@@ -261,7 +261,7 @@ export const getOrders = async (req, res) => {
       ORDER BY t_order_mobile.t_tgl_transaksi DESC
     `);
 
-    //     db.query(`
+    //  db.query(`
     //   DELETE FROM t_order_mobile
     // `)
 
@@ -314,13 +314,19 @@ export const updateFilesClient = async (req, res) => {
             `);
         })
         Promise.all([async1])
-            .then(() => {
+            .then(async () => {
                 // All records inserted successfully
+                const [results, metadata] = await db.query(`
+                    UPDATE t_order_mobile SET t_file_pulsa = '1' WHERE id = '${id}'
+                    RETURNING id
+                `);
+
                 res.status(200).json(
                     {
                         message: "Photos uploaded successfully",
                         size: photos.length,
-                        photos: photos
+                        photos: photos,
+                        update_t_order_mobile: results
                     }
                 );
             })
@@ -344,6 +350,21 @@ export const getFilesClient = async (req, res) => {
         const [results, metadata] = await db.query(`
             SELECT *
             FROM t_upload_order
+        `);
+
+        res.json(results);
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+export const getFilesClientByIdTransaksi = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_upload_order
+            WHERE t_id_transaksi = '${id}'
         `);
 
         res.json(results);
@@ -415,6 +436,22 @@ export const getStatusNumber = async (req, res) => {
 }
 
 
+export const getStatusOder = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_order_mobile
+            WHERE t_order_mobile.id = '${id}'
+        `);
+
+        res.json(results[0]);
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+
 export const updateOrderChip = async (req, res) => {
     try {
         const {id} = req.params;
@@ -427,6 +464,22 @@ export const updateOrderChip = async (req, res) => {
             results: results,
             t_id_chip: req.body.t_id_chip,
             id: id
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            UPDATE t_order_mobile SET is_valid = '${req.body.is_valid}', is_done = '${req.body.is_done}', is_success = '${req.body.is_success}' WHERE id = '${id}'
+            RETURNING id
+        `);
+
+        res.json({
+            results: results,
         });
     } catch (e) {
         handleSequelizeError(e, res)
