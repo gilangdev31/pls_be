@@ -8,7 +8,7 @@ import {
 } from "../controller/Category.js";
 import {
     createOrder, fileUploads, getChip, getFilesClient, getFilesClientByIdTransaksi,
-    getOrders, getStatus, getStatusNumber, getStatusOder,
+    getOrders, getStatus, getStatusNumber, getStatusOder, getStatusOderByUserId,
     getTimer,
     getTutorial,
     updateFilesClient, updateOrderChip, updateOrderStatus,
@@ -31,6 +31,7 @@ router.get('/api/v1/status', getStatus);
 router.get('/api/v1/chip', getChip);
 router.get('/api/v1/status_number/:id', getStatusNumber);
 router.get('/api/v1/status_order/:id', getStatusOder);
+router.get('/api/v1/status_order_by_user/:id', getStatusOderByUserId);
 
 router.put('/api/v1/update_order_chip/:id', updateOrderChip);
 router.put('/api/v1/update_order_status/:id', updateOrderStatus);

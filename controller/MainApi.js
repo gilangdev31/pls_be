@@ -132,6 +132,7 @@ export const createOrder = async (req, res) => {
           ORDER BY updated_at DESC
         `);
 
+        const t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
         const [results, metadata] = await db.query(`
         INSERT INTO t_order_mobile (
             uuid,
@@ -180,7 +181,7 @@ export const createOrder = async (req, res) => {
             '${req.body.t_total_jumlah_pembayaran}',
             '${req.body.t_id_via}',
             '${nextCS}',
-            NULL,
+            '${t_id_chip}',
             '${req.body.t_id_user}',
             NULL,
             NULL,
@@ -511,6 +512,21 @@ export const updateOrderStatus = async (req, res) => {
         res.json({
             results: results,
         });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+export const getStatusOderByUserId = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_order_mobile
+            WHERE t_order_mobile.t_id_user = '${id}'
+        `);
+
+        res.json(results);
     } catch (e) {
         handleSequelizeError(e, res)
     }
