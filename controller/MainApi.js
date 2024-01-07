@@ -175,7 +175,7 @@ export const createOrder = async (req, res) => {
             '${req.body.t_total_jumlah_pembayaran}',
             '${req.body.t_id_via}',
             '${nextCS}',
-            '${req.body.t_id_chip}',
+            NULL,
             '${req.body.t_id_user}',
             NULL,
             NULL,
