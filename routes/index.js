@@ -7,7 +7,7 @@ import {
     updateCategories
 } from "../controller/Category.js";
 import {
-    createOrder, fileUploads, getChip, getFilesClient, getFilesClientByIdTransaksi,
+    createOrder, fileUploads, getChip, getFilesClient, getFilesClientByIdTransaksi, getOrderById,
     getOrders, getStatus, getStatusNumber, getStatusOder, getStatusOderByUserId,
     getTimer,
     getTutorial,
@@ -18,6 +18,7 @@ import {
 const router = express.Router();
 
 router.get('/api/v1/order', getOrders);
+router.get('/api/v1/order/:id', getOrderById);
 router.post('/api/v1/order', createOrder);
 router.put('/api/v1/order/:id', updateStatusOrder);
 router.get('/api/v1/timer', getTimer);

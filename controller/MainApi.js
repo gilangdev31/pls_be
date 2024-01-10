@@ -115,6 +115,40 @@ async function getNextCS() {
     return [nextCS];
 }
 
+export const getOrderById = async (req, res) => {
+    try {
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+
+        const { id } = req.params;
+        const [results, metadata] = await db.query(`
+          SELECT *
+          FROM t_order_mobile
+          WHERE t_order_mobile.id = '${id}'
+        `);
+
+        if(results[0]) {
+            const [inChip, metadata2] = await db.query(`
+              SELECT *
+              FROM t_inchip
+              WHERE t_id_provider = '${results[0].t_id_provider}' AND t_id_cs = '${results[0].t_id_cs}'
+              ORDER BY updated_at DESC
+            `);
+
+            res.json({
+                inchip: inChip[0] ? inChip[0] : null,
+                cs: inChip[0].t_id_cs,
+                idTransaction: results[0].t_id_transaksi,
+                id: results[0].id,
+                currentTime: currentTime
+            });
+        }
+    }catch (error) {
+        handleSequelizeError(error, res)
+    }
+}
 export const createOrder = async (req, res) => {
     try {
         const uuid = generateUUID(); // Assuming you have a function to generate a UUID
@@ -505,7 +539,7 @@ export const updateOrderStatus = async (req, res) => {
         const currentTime = utcPlus7Date.toISOString();
 
         const [results, metadata] = await db.query(`
-            UPDATE t_order_mobile SET is_valid = '${req.body.is_valid}', is_done = '${req.body.is_done}', is_success = '${req.body.is_success}', updated_at = '${currentTime}' WHERE id = '${id}'
+            UPDATE t_order_mobile SET is_valid = '${req.body.is_valid}', is_done = '${req.body.is_done}', is_success = '${req.body.is_success}', t_ket = '${req.body.t_ket}', updated_at = '${currentTime}' WHERE id = '${id}'
             RETURNING id
         `);
 
