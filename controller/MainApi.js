@@ -167,6 +167,12 @@ export const createOrder = async (req, res) => {
         `);
 
         const t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
+        // res.json({
+        //     inchip: t_id_chip,
+        //     cs: nextCS,
+        //     idTransaction: req.body.t_id_transaksi,
+        //     currentTime: currentTime
+        // });
         const [results, metadata] = await db.query(`
         INSERT INTO t_order_mobile (
             uuid,
@@ -215,7 +221,7 @@ export const createOrder = async (req, res) => {
             '${req.body.t_total_jumlah_pembayaran}',
             '${req.body.t_id_via}',
             '${nextCS}',
-            '${t_id_chip}',
+            ${t_id_chip},
             '${req.body.t_id_user}',
             NULL,
             NULL,
@@ -558,6 +564,7 @@ export const getStatusOderByUserId = async (req, res) => {
             SELECT *
             FROM t_order_mobile
             WHERE t_order_mobile.t_id_user = '${id}'
+            ORDER BY t_order_mobile.created_at DESC
         `);
 
         res.json(results);

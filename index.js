@@ -35,7 +35,7 @@ try {
     console.log('Columns of t_upload_order table:', columns);
 
     cron.schedule('*/5 * * * * *', async () => {
-        console.log('Running a task every 20 seconds:', new Date().toISOString());
+        // console.log('Running a task every 20 seconds:', new Date().toISOString());
         // Add your task logic here
         const [results, metadata] = await db.query(`
           SELECT *
@@ -47,10 +47,10 @@ try {
             const [results2, metadata2] = await db.query(`
               SELECT *
               FROM t_order_mobile
-              WHERE t_order_mobile.t_file_pulsa IS NULL
+              WHERE t_order_mobile.t_file_pulsa IS NULL AND t_order_mobile.is_success IS NULL
             `);
 
-            console.log(`timeInMinute ${timeInMinute}`);
+            // console.log(`timeInMinute ${timeInMinute}`);
 
             for (const result of results2) {
                 const createdAt = new Date(result.created_at);
