@@ -261,21 +261,28 @@ export const getTutorial = async (req, res) => {
           WHERE t_id_provider = '${idProvider}'
         `);
 
-        const updatedResults = results.map(item => {
-            // Replace [nomor admin] with the custom variable in the s_ket string
-            const updatedSket = item.s_ket.replace('[nomor admin]', phoneNumber);
-            const updatedSket2 = updatedSket.replace('[nominal]', nominal);
-            const updatedSket3 = updatedSket2.replace('[nominal pulsa]', nominal);
+        const [providers, metadata2] = await db.query(`
+          SELECT *
+          FROM s_provider
+          WHERE id = '${idProvider}'
+        `);
 
-            // Return a new object with the updated s_ket value
-            return {
-                ...item,
-                s_ket: updatedSket3
-            };
-        });
+        // const updatedResults = results.map(item => {
+        //     // Replace [nomor admin] with the custom variable in the s_ket string
+        //     const updatedSket = item.s_ket.replace('[nomor admin]', phoneNumber);
+        //     const updatedSket2 = updatedSket.replace('[nominal]', nominal);
+        //     const updatedSket3 = updatedSket2.replace('[nominal pulsa]', nominal);
+        //
+        //     // Return a new object with the updated s_ket value
+        //     return {
+        //         ...item,
+        //         s_ket: updatedSket3
+        //     };
+        // });
 
         res.json({
-            results: updatedResults
+            results: results,
+            providers: providers
         });
 
     } catch (error) {
