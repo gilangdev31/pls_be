@@ -63,14 +63,17 @@ async function getNextCS() {
 
     // Count the number of active customer services
     const countCSQuery = `
-    SELECT COUNT(*) as count FROM s_customer_services 
-    WHERE s_status = 'true' AND s_kategori = '2'
+    SELECT MAX(id) AS id FROM s_customer_services;
+
+
+--    SELECT COUNT(*) as count FROM s_customer_services 
+--    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
     // Get the list of active customer services
     const listCSQuery = `
-    SELECT id FROM s_customer_services 
-    WHERE s_status = 'true' AND s_kategori = '2'
+    SELECT * FROM s_customer_services 
+--    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
     // s_kategori 1 = wa
@@ -82,15 +85,15 @@ async function getNextCS() {
 
     const [getCS, countCS, listCS] = await Promise.all([getCSPromise, countCSPromise, listCSPromise]);
 
-    const countFinal = parseInt(countCS[0].count);
+    const countFinal = parseInt(countCS[0].id);
     const getCsFinal = getCS[0] ? parseInt(getCS[0].t_id_cs) : -1;
-    const listCSFinal = listCS.map(item => parseInt(item.id, 10));
+    const listCSFinal = listCS;//.map(item => parseInt(item.id, 10));
 
-    console.log("getCsFinal"); //[ { count: '2' } ]
+    console.log("getCsFinalGilangO111L"); //[ { count: '2' } ]
     console.log(getCsFinal); // 1, 2, 3
-    console.log("countFinal"); //[ { count: '2' } ]
-    console.log(countFinal); // 1, 2, 3
-    console.log("listCSFinal"); //[ { id: '1' }, { id: '2' }, { id: '3'
+    console.log("countFinalGilangO111L"); //[ { count: '2' } ]
+    console.log(getCsFinal); // 1, 2, 3
+    console.log("listCSFinalGilangO111L"); //[ { id: '1' }, { id: '2' }, { id: '3'
     console.log(listCSFinal); // 1, 2, 3
 
 
@@ -100,8 +103,14 @@ async function getNextCS() {
     if (countCS === 1) {
         nextCS = listCS[0];
     } else {
-        for (const cs of listCSFinal) {
+        for (const item of listCSFinal) {
+            const cs = parseInt(item.id, 10)
+            const isValid = item.s_status === true && item.s_kategori === 2;
+
             if (getCsFinal === -1 || getCsFinal === countFinal) {
+                if(!isValid) {
+                    continue;
+                }
                 console.log("11111"); //[ { count: '2' } ]
                 nextCS = cs;
                 break;
@@ -109,6 +118,11 @@ async function getNextCS() {
                 console.log("22222"); //[ { count: '2' } ]
                 continue;
             } else {
+
+                if(!isValid) {
+                    continue;
+                }
+
                 console.log("3333"); //[ { count: '2' } ]
                 nextCS = cs;
                 break;
@@ -117,6 +131,8 @@ async function getNextCS() {
     }
     return [nextCS];
 }
+
+
 
 export const getOrderById = async (req, res) => {
     try {
@@ -161,21 +177,33 @@ export const createOrder = async (req, res) => {
         const offset = 7 * 60 * 60 * 1000;
         const utcPlus7Date = new Date(utcDate.getTime() + offset);
         const currentTime = utcPlus7Date.toISOString();
+        let t_id_chip;
+        let inChip, metadata2;
 
-        const [inChip, metadata2] = await db.query(`
+        if(nextCS != null) {
+            const [inChipR, metadata2] = await db.query(`
           SELECT *
           FROM t_inchip
           WHERE t_id_cs = '${nextCS}' AND t_id_provider = '${req.body.t_id_provider}'
           ORDER BY updated_at DESC
         `);
+            inChip = inChipR;
+             t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
 
-        const t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
-        // res.json({
+        } else {
+            inChip = null;
+            t_id_chip = null
+        }
+
+
+
+        //  return res.json({
         //     inchip: t_id_chip,
         //     cs: nextCS,
         //     idTransaction: req.body.t_id_transaksi,
         //     currentTime: currentTime
         // });
+
         const [results, metadata] = await db.query(`
         INSERT INTO t_order_mobile (
             uuid,
@@ -223,7 +251,7 @@ export const createOrder = async (req, res) => {
             '${req.body.t_fee}',
             '${req.body.t_total_jumlah_pembayaran}',
             '${req.body.t_id_via}',
-            '${nextCS}',
+            ${nextCS},
             ${t_id_chip},
             '${req.body.t_id_user}',
             NULL,
@@ -293,11 +321,30 @@ export const getTutorial = async (req, res) => {
     }
 }
 
+
+
 export const getTimer = async (req, res) => {
     try {
         const [results, metadata] = await db.query(`
           SELECT *
           FROM s_timer
+        `);
+
+        res.json({
+            results: results
+        });
+
+    } catch (error) {
+
+    }
+}
+
+
+export const getCs = async (req, res) => {
+    try {
+        const [results, metadata] = await db.query(`
+          SELECT *
+          FROM s_customer_services
         `);
 
         res.json({

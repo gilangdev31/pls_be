@@ -9,7 +9,7 @@ import {
 import {
     createOrder,
     fileUploads,
-    getChip,
+    getChip, getCs,
     getFilesAdminByIdTransaksi,
     getFilesClient,
     getFilesClientByIdTransaksi,
@@ -34,6 +34,7 @@ router.get('/api/v1/order/:id', getOrderById);
 router.post('/api/v1/order', createOrder);
 router.put('/api/v1/order/:id', updateStatusOrder);
 router.get('/api/v1/timer', getTimer);
+router.get('/api/v1/cs', getCs);
 router.get('/api/v1/status_chat', getStatusChat);
 router.post('/api/v1/upload_files/:id',fileUploads, updateFilesClient);
 
