@@ -7,11 +7,23 @@ import {
     updateCategories
 } from "../controller/Category.js";
 import {
-    createOrder, fileUploads, getChip, getFilesClient, getFilesClientByIdTransaksi, getOrderById,
-    getOrders, getStatus, getStatusNumber, getStatusOder, getStatusOderByUserId,
+    createOrder,
+    fileUploads,
+    getChip,
+    getFilesAdminByIdTransaksi,
+    getFilesClient,
+    getFilesClientByIdTransaksi,
+    getOrderById,
+    getOrders,
+    getStatus, getStatusChat,
+    getStatusNumber,
+    getStatusOder,
+    getStatusOderByUserId,
     getTimer,
     getTutorial,
-    updateFilesClient, updateOrderChip, updateOrderStatus,
+    updateFilesClient,
+    updateOrderChip,
+    updateOrderStatus,
     updateStatusOrder
 } from "../controller/MainApi.js";
 
@@ -22,10 +34,12 @@ router.get('/api/v1/order/:id', getOrderById);
 router.post('/api/v1/order', createOrder);
 router.put('/api/v1/order/:id', updateStatusOrder);
 router.get('/api/v1/timer', getTimer);
+router.get('/api/v1/status_chat', getStatusChat);
 router.post('/api/v1/upload_files/:id',fileUploads, updateFilesClient);
 
 router.get('/api/v1/files', getFilesClient);
 router.get('/api/v1/files/:id', getFilesClientByIdTransaksi);
+router.get('/api/v1/files_admin/:id', getFilesAdminByIdTransaksi);
 
 router.get('/api/v1/tutorial/:idProvider', getTutorial);
 router.get('/api/v1/status', getStatus);

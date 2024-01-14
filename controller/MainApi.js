@@ -64,14 +64,17 @@ async function getNextCS() {
     // Count the number of active customer services
     const countCSQuery = `
     SELECT COUNT(*) as count FROM s_customer_services 
-    WHERE s_status = 'true'
+    WHERE s_status = 'true' && s_kategori = '2'
   `;
 
     // Get the list of active customer services
     const listCSQuery = `
     SELECT id FROM s_customer_services 
-    WHERE s_status = 'true'
+    WHERE s_status = 'true' && s_kategori = '2'
   `;
+
+    // s_kategori 1 = wa
+    // s_kategori 2 = via app
 
     const [getCSPromise, metadata] = await db.query(getCSQuery);
     const [countCSPromise, metadata2] = await db.query(countCSQuery);
@@ -258,7 +261,7 @@ export const getTutorial = async (req, res) => {
         const [results, metadata] = await db.query(`
           SELECT *
           FROM s_tutorial
-          WHERE t_id_provider = '${idProvider}'
+          WHERE t_id_provider = '${idProvider}' AND is_active = 'true'
         `);
 
         const [providers, metadata2] = await db.query(`
@@ -295,6 +298,23 @@ export const getTimer = async (req, res) => {
         const [results, metadata] = await db.query(`
           SELECT *
           FROM s_timer
+        `);
+
+        res.json({
+            results: results
+        });
+
+    } catch (error) {
+
+    }
+}
+
+
+export const getStatusChat = async (req, res) => {
+    try {
+        const [results, metadata] = await db.query(`
+          SELECT *
+          FROM s_chat
         `);
 
         res.json({
@@ -429,6 +449,21 @@ export const getFilesClientByIdTransaksi = async (req, res) => {
         const [results, metadata] = await db.query(`
             SELECT *
             FROM t_upload_order
+            WHERE t_id_transaksi = '${id}'
+        `);
+
+        res.json(results);
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+export const getFilesAdminByIdTransaksi = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_upload_proses
             WHERE t_id_transaksi = '${id}'
         `);
 
