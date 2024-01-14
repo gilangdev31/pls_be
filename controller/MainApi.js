@@ -64,13 +64,13 @@ async function getNextCS() {
     // Count the number of active customer services
     const countCSQuery = `
     SELECT COUNT(*) as count FROM s_customer_services 
-    WHERE s_status = 'true' && s_kategori = '2'
+    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
     // Get the list of active customer services
     const listCSQuery = `
     SELECT id FROM s_customer_services 
-    WHERE s_status = 'true' && s_kategori = '2'
+    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
     // s_kategori 1 = wa
