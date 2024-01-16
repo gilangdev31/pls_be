@@ -7,9 +7,19 @@ import cors from 'cors';
 import path, {dirname} from "path";
 import {fileURLToPath} from "url";
 import cron from "node-cron";
+import admin from "firebase-admin";
+import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
+
+
+
+
 
 dotenv.config();
 
+
+let newAdmin = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 const app = express();
 const PORT = 8080;
 const __filename = fileURLToPath(import.meta.url);
@@ -89,9 +99,12 @@ try {
         }
     });
 
+
 } catch (error) {
     console.error('Unable to connect to the database:', error);
 }
+
+export default newAdmin;
 
 app.use(cors({
     origin: 'http://localhost:3000',

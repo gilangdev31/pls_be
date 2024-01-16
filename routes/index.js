@@ -12,7 +12,7 @@ import {
     getChip, getCs,
     getFilesAdminByIdTransaksi,
     getFilesClient,
-    getFilesClientByIdTransaksi,
+    getFilesClientByIdTransaksi, getInchip,
     getOrderById,
     getOrders,
     getStatus, getStatusChat,
@@ -20,7 +20,7 @@ import {
     getStatusOder,
     getStatusOderByUserId,
     getTimer,
-    getTutorial,
+    getTutorial, handleHook,
     updateFilesClient,
     updateOrderChip,
     updateOrderStatus,
@@ -46,8 +46,10 @@ router.get('/api/v1/tutorial/:idProvider', getTutorial);
 router.get('/api/v1/status', getStatus);
 router.get('/api/v1/chip', getChip);
 router.get('/api/v1/status_number/:id', getStatusNumber);
+router.get('/api/v1/inchip', getInchip);
 router.get('/api/v1/status_order/:id', getStatusOder);
 router.get('/api/v1/status_order_by_user/:id', getStatusOderByUserId);
+router.post('/api/v1/hook', handleHook);
 
 router.put('/api/v1/update_order_chip/:id', updateOrderChip);
 router.put('/api/v1/update_order_status/:id', updateOrderStatus);

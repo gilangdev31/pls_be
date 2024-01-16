@@ -7,6 +7,8 @@ import express from "express";
 import path, {dirname, join} from "path";
 import { existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
+import newAdmin from "../index.js";
+import admin from "firebase-admin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -64,10 +66,6 @@ async function getNextCS() {
     // Count the number of active customer services
     const countCSQuery = `
     SELECT MAX(id) AS id FROM s_customer_services;
-
-
---    SELECT COUNT(*) as count FROM s_customer_services 
---    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
     // Get the list of active customer services
@@ -76,8 +74,6 @@ async function getNextCS() {
 --    WHERE s_status = 'true' AND s_kategori = '2'
   `;
 
-    // s_kategori 1 = wa
-    // s_kategori 2 = via app
 
     const [getCSPromise, metadata] = await db.query(getCSQuery);
     const [countCSPromise, metadata2] = await db.query(countCSQuery);
@@ -552,6 +548,21 @@ export const getChip = async (req, res) => {
     }
 }
 
+export const getInchip = async (req, res) => {
+    try {
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM t_inchip
+        `);
+
+        res.json({
+            results: results
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
 export const getStatusNumber = async (req, res) => {
     try {
         const {id} = req.params;
@@ -657,6 +668,38 @@ export const getStatusOderByUserId = async (req, res) => {
         `);
 
         res.json(results);
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+
+export const handleHook = async (req, res) => {
+    try {
+        console.log("webhook called");
+        console.log(req.body);
+        res.json("ok");
+
+        const message = {
+            notification: {
+                title: 'Message Received',
+                body: req.body.data.content.toString(),
+            },
+            data: {
+                score: '850',
+                time: '2:45'
+            },
+            topic: req.body.data.session_id
+        };
+
+        newAdmin.messaging().send(message)
+            .then((response) => {
+                // Response is a message ID string.
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
+            });
     } catch (e) {
         handleSequelizeError(e, res)
     }
