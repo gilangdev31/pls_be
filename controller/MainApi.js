@@ -692,14 +692,16 @@ export const handleHook = async (req, res) => {
             topic: req.body.data.session_id
         };
 
-        newAdmin.messaging().send(message)
-            .then((response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-            });
+        if(req.body.data.user.nickname.includes("CS")) {
+            newAdmin.messaging().send(message)
+                .then((response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                });
+        }
     } catch (e) {
         handleSequelizeError(e, res)
     }
