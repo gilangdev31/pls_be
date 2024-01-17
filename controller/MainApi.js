@@ -128,6 +128,186 @@ async function getNextCS() {
     return [nextCS];
 }
 
+async function getNextCSChat() {
+    const getCSQuery = `
+    SELECT * FROM t_order_mobile 
+    ORDER BY CAST(id AS INT) DESC
+    LIMIT 1
+  `;
+
+    // Count the number of active customer services
+    const countCSQuery = `
+    SELECT * FROM s_customer_services
+    ORDER BY CAST(id AS INT) DESC
+    LIMIT 3
+  `;
+
+    // Get the list of active customer services
+    const listCSQuery = `
+    SELECT * FROM s_customer_services 
+  `;
+
+
+    const [getCSPromise, metadata] = await db.query(getCSQuery);
+    const [countCSPromise, metadata2] = await db.query(countCSQuery);
+    const [listCSPromise, metadata3] = await db.query(listCSQuery);
+
+    const [getCS, countCS, listCS] = await Promise.all([getCSPromise, countCSPromise, listCSPromise]);
+
+    const countFinal = listCS.length;//parseInt(countCS[0].id);
+    const getCsFinalA = getCS[0] ? parseInt(getCS[0].t_id_cs) : -1;
+    const listCSFinal = listCS;//.map(item => parseInt(item.id, 10));
+
+    const getCsFinal = listCSFinal.findIndex((element) => element.id === getCsFinalA.toString());
+
+
+    console.log("getCsFinalAGilangcccc11112"); //[ { count: '2' } ]
+    console.log(getCsFinalA); // 1, 2, 3
+    console.log("getCsFinalGilangcccc11112"); //[ { count: '2' } ]
+    console.log(getCsFinal); // 1, 2, 3
+    console.log("countFinalGilang8xxx12"); //[ { count: '2' } ]
+    console.log(countFinal); // 1, 2, 3
+    console.log("listCSFinalGilang8xxx12"); //[ { id: '1' }, { id: '2' }, { id: '3'
+    console.log(listCSFinal); // 1, 2, 3
+
+
+    let nextCS = null;
+
+
+    if (countCS === 1) {
+        nextCS = listCS[0];
+    } else {
+        for (const [index, item] of listCSFinal.entries()) {
+            const cs = parseInt(item.id, 10)
+            const isValid = item.s_status === true && item.s_kategori === 2;
+
+            if (getCsFinal === -1 || getCsFinal === countFinal) {
+                console.log("11111");
+                if(!isValid) {
+                    console.log("notvalid");
+                    continue;
+                }
+                 //[ { count: '2' } ]
+                nextCS = cs;
+                break;
+            } else if (getCsFinal !== -1 && getCsFinal >= index) {
+                console.log("22222  " + index + "   " + getCsFinal); //[ { count: '2' } ]
+                continue;
+            } else {
+                console.log("3333"); //[ { count: '2' } ]
+                if(!isValid) {
+                    console.log("notvalid333");
+
+                    if(index === countFinal - 1) {
+                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 2;
+                        const filteredList = listCSFinal.filter(filterCondition);
+                        const firstMatchingElement = filteredList.find(() => true);
+
+                        nextCS = parseInt(firstMatchingElement.id);
+                    }
+
+                    continue;
+                }
+
+                nextCS = cs;
+                break;
+            }
+        }
+    }
+    return [nextCS];
+}
+
+
+async function getNextCSFromApp() {
+    const getCSQuery = `
+    SELECT * FROM t_order_mobile 
+    ORDER BY CAST(id AS INT) DESC
+    LIMIT 1
+  `;
+
+    // Count the number of active customer services
+    const countCSQuery = `
+    SELECT * FROM s_customer_services
+    ORDER BY CAST(id AS INT) DESC
+    LIMIT 3
+  `;
+
+    // Get the list of active customer services
+    const listCSQuery = `
+    SELECT * FROM s_customer_services 
+  `;
+
+
+    const [getCSPromise, metadata] = await db.query(getCSQuery);
+    const [countCSPromise, metadata2] = await db.query(countCSQuery);
+    const [listCSPromise, metadata3] = await db.query(listCSQuery);
+
+    const [getCS, countCS, listCS] = await Promise.all([getCSPromise, countCSPromise, listCSPromise]);
+
+    const countFinal = listCS.length;//parseInt(countCS[0].id);
+    const getCsFinalA = getCS[0] ? parseInt(getCS[0].t_id_cs) : -1;
+    const listCSFinal = listCS;//.map(item => parseInt(item.id, 10));
+
+    const getCsFinal = listCSFinal.findIndex((element) => element.id === getCsFinalA.toString());
+
+
+    console.log("getCsFinalAGilangcccc11112"); //[ { count: '2' } ]
+    console.log(getCsFinalA); // 1, 2, 3
+    console.log("getCsFinalGilangcccc11112"); //[ { count: '2' } ]
+    console.log(getCsFinal); // 1, 2, 3
+    console.log("countFinalGilang8xxx12"); //[ { count: '2' } ]
+    console.log(countFinal); // 1, 2, 3
+    console.log("listCSFinalGilang8xxx12"); //[ { id: '1' }, { id: '2' }, { id: '3'
+    console.log(listCSFinal); // 1, 2, 3
+
+
+    let nextCS = null;
+
+
+    if (countCS === 1) {
+        nextCS = listCS[0];
+    } else {
+        for (const [index, item] of listCSFinal.entries()) {
+            const cs = parseInt(item.id, 10)
+            const isValid = item.s_status === true && item.s_kategori === 1;
+
+            if (getCsFinal === -1 || getCsFinal === countFinal) {
+                console.log("11111");
+                if(!isValid) {
+                    console.log("notvalid");
+                    continue;
+                }
+                //[ { count: '2' } ]
+                nextCS = cs;
+                break;
+            } else if (getCsFinal !== -1 && getCsFinal >= index) {
+                console.log("22222  " + index + "   " + getCsFinal); //[ { count: '2' } ]
+                continue;
+            } else {
+                console.log("3333"); //[ { count: '2' } ]
+                if(!isValid) {
+                    console.log("notvalid333");
+
+                    if(index === countFinal - 1) {
+                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 1;
+                        const filteredList = listCSFinal.filter(filterCondition);
+                        const firstMatchingElement = filteredList.find(() => true);
+
+                        nextCS = parseInt(firstMatchingElement.id);
+                    }
+
+                    continue;
+                }
+
+                nextCS = cs;
+                break;
+            }
+        }
+    }
+    return [nextCS];
+}
+
+
 
 
 export const getOrderById = async (req, res) => {
@@ -164,10 +344,147 @@ export const getOrderById = async (req, res) => {
         handleSequelizeError(error, res)
     }
 }
+
+//
+// { name: 'id', type: 'bigint' },
+// { name: 'uuid', type: 'uuid' },
+// { name: 't_tgl_transaksi', type: 'date' },
+// { name: 't_id_provider', type: 'integer' },
+// { name: 't_provider', type: 'character varying' },
+// { name: 't_rate', type: 'double precision' },
+// { name: 't_no_telp', type: 'character varying' },
+// { name: 't_nominal', type: 'double precision' },
+// { name: 't_jumlah_pembayaran', type: 'double precision' },
+// { name: 't_id_metode_pembayaran', type: 'integer' },
+// { name: 't_metode_pembayaran', type: 'character varying' },
+// { name: 't_no_rekening', type: 'character varying' },
+// { name: 't_nama_rekening', type: 'character varying' },
+// { name: 't_fee', type: 'character varying' },
+// { name: 't_total_jumlah_pembayaran', type: 'double precision' },
+// { name: 't_id_via', type: 'integer' },
+// { name: 't_id_cs', type: 'integer' },
+// { name: 't_id_chip', type: 'integer' },
+// { name: 't_id_user', type: 'integer' },
+// { name: 't_file_pulsa', type: 'text' },
+// { name: 't_file_pembayaran', type: 'text' },
+// { name: 't_id_verifikasi', type: 'integer' },
+// { name: 'created_at', type: 'timestamp without time zone' },
+// { name: 'updated_at', type: 'timestamp without time zone' },
+// { name: 't_fee_real', type: 'double precision' },
+// { name: 't_total_transfer', type: 'double precision' }
+
+
+export const createOrderChat = async (req, res) => {
+    try {
+        const uuid = generateUUID(); // Assuming you have a function to generate a UUID
+        const [nextCS] = await getNextCSChat(); // Get the next customer service ID
+
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+        let t_id_chip;
+        let inChip, metadata2;
+
+        if(nextCS != null) {
+            const [inChipR, metadata2] = await db.query(`
+          SELECT *
+          FROM t_inchip
+          WHERE t_id_cs = '${nextCS}' AND t_id_provider = '${req.body.t_id_provider}'
+          ORDER BY updated_at DESC
+        `);
+            inChip = inChipR;
+            t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
+
+        } else {
+            inChip = null;
+            t_id_chip = null
+        }
+
+
+
+        //  return res.json({
+        //     inchip: t_id_chip,
+        //     cs: nextCS,
+        //     idTransaction: req.body.t_id_transaksi,
+        //     currentTime: currentTime
+        // });
+
+        const [results, metadata] = await db.query(`
+        INSERT INTO t_transaksi (
+              uuid,
+              t_tgl_transaksi,
+              t_id_provider,
+              t_provider,
+              t_rate,
+              t_no_telp,
+              t_nominal,
+              t_jumlah_pembayaran,
+              t_id_metode_pembayaran,
+              t_metode_pembayaran,
+              t_no_rekening,
+              t_nama_rekening,
+              t_fee,
+              t_total_jumlah_pembayaran,
+              t_id_via,
+              t_id_cs,
+              t_id_chip,
+              t_id_user,
+              t_file_pulsa,
+              t_file_pembayaran,
+              t_id_verifikasi,
+              created_at,
+              updated_at,
+              t_fee_real,
+              t_total_transfer
+            ) VALUES (
+              '${uuid}',
+                '${req.body.t_tgl_transaksi}',
+                '${req.body.t_id_provider}',
+                '${req.body.t_provider}',
+                '${req.body.t_rate}',
+                '${req.body.t_no_telp}',
+                '${req.body.t_nominal}',
+                '${req.body.t_jumlah_pembayaran}',
+                '${req.body.t_id_metode_pembayaran}',
+                '${req.body.t_metode_pembayaran}',
+                '${req.body.t_no_rekening}',
+                '${req.body.t_nama_rekening}',
+                '${req.body.t_fee}',
+                '${req.body.t_total_jumlah_pembayaran}',
+                '${req.body.t_id_via}',
+                ${nextCS},
+                ${t_id_chip},
+                '${req.body.t_id_user}',
+                  '', 
+                  '',
+                  0,
+                     '${currentTime}',
+                     '${currentTime}',
+                  0,
+                  0
+            ) RETURNING id
+
+    `);
+
+        res.json({
+            inchip: inChip[0] ? inChip[0] : null,
+            cs: nextCS,
+            idTransaction: req.body.t_id_transaksi,
+            id: results[0].id,
+            currentTime: currentTime,
+        });
+
+    } catch (error) {
+        handleSequelizeError(error, res)
+    }
+}
+
+
 export const createOrder = async (req, res) => {
     try {
         const uuid = generateUUID(); // Assuming you have a function to generate a UUID
-        const [nextCS] = await getNextCS(); // Get the next customer service ID
+        const [nextCS] = await getNextCSFromApp(); // Get the next customer service ID
 
         const utcDate = new Date();
         const offset = 7 * 60 * 60 * 1000;

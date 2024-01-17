@@ -33,7 +33,7 @@ try {
       SELECT column_name, data_type
       FROM information_schema.columns
       WHERE table_schema = 'public'
-      AND table_name = 't_status';
+      AND table_name = 't_transaksi';
     `);
 
     // Extract column information from the results
@@ -42,7 +42,7 @@ try {
         type: result.data_type,
     }));
 
-    console.log('Columns of t_upload_order table:', columns);
+    console.log('Columns of t_transaksi table:', columns);
 
     cron.schedule('*/5 * * * * *', async () => {
         // console.log('Running a task every 20 seconds:', new Date().toISOString());
