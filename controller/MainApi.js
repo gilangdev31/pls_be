@@ -181,7 +181,7 @@ async function getNextCSChat() {
             const cs = parseInt(item.id, 10)
             const isValid = item.s_status === true && item.s_kategori === 1;
 
-            if (getCsFinal === -1 || getCsFinal === countFinal) {
+            if (getCsFinal === -1 || getCsFinalA === countFinal) {
                 console.log("11111");
                 if(!isValid) {
                     console.log("notvalid");
