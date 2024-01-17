@@ -130,7 +130,7 @@ async function getNextCS() {
 
 async function getNextCSChat() {
     const getCSQuery = `
-    SELECT * FROM t_order_mobile 
+    SELECT * FROM t_transaksi    
     ORDER BY CAST(id AS INT) DESC
     LIMIT 1
   `;
@@ -179,7 +179,7 @@ async function getNextCSChat() {
     } else {
         for (const [index, item] of listCSFinal.entries()) {
             const cs = parseInt(item.id, 10)
-            const isValid = item.s_status === true && item.s_kategori === 2;
+            const isValid = item.s_status === true && item.s_kategori === 1;
 
             if (getCsFinal === -1 || getCsFinal === countFinal) {
                 console.log("11111");
@@ -199,7 +199,7 @@ async function getNextCSChat() {
                     console.log("notvalid333");
 
                     if(index === countFinal - 1) {
-                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 2;
+                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 1;
                         const filteredList = listCSFinal.filter(filterCondition);
                         const firstMatchingElement = filteredList.find(() => true);
 
@@ -269,7 +269,7 @@ async function getNextCSFromApp() {
     } else {
         for (const [index, item] of listCSFinal.entries()) {
             const cs = parseInt(item.id, 10)
-            const isValid = item.s_status === true && item.s_kategori === 1;
+            const isValid = item.s_status === true && item.s_kategori === 2;
 
             if (getCsFinal === -1 || getCsFinal === countFinal) {
                 console.log("11111");
@@ -289,7 +289,7 @@ async function getNextCSFromApp() {
                     console.log("notvalid333");
 
                     if(index === countFinal - 1) {
-                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 1;
+                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 2;
                         const filteredList = listCSFinal.filter(filterCondition);
                         const firstMatchingElement = filteredList.find(() => true);
 
@@ -384,7 +384,7 @@ export const createOrderChat = async (req, res) => {
         const utcPlus7Date = new Date(utcDate.getTime() + offset);
         const currentTime = utcPlus7Date.toISOString();
         let t_id_chip;
-        let inChip, metadata2;
+        let inChip, metadata2, phoneCs;
 
         if(nextCS != null) {
             const [inChipR, metadata2] = await db.query(`
@@ -395,6 +395,17 @@ export const createOrderChat = async (req, res) => {
         `);
             inChip = inChipR;
             t_id_chip = inChip[0] ? inChip[0].t_id_chip : null
+
+
+            const [cs, metadata21] = await db.query(`
+              SELECT *
+              FROM s_customer_services
+              WHERE id = '${nextCS}'
+            `);
+
+            if(cs && cs[0]) {
+                phoneCs = cs[0].s_no_wa;
+            }
 
         } else {
             inChip = null;
@@ -473,6 +484,7 @@ export const createOrderChat = async (req, res) => {
             idTransaction: req.body.t_id_transaksi,
             id: results[0].id,
             currentTime: currentTime,
+            phoneCs: phoneCs
         });
 
     } catch (error) {
