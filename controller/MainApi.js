@@ -10,6 +10,9 @@ import { fileURLToPath } from 'url';
 import newAdmin from "../index.js";
 import admin from "firebase-admin";
 
+import bcrypt from "bcrypt";
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -700,22 +703,44 @@ export const getStatusChat = async (req, res) => {
 
 
 export const getOrders = async (req, res) => {
+    // try {
+    //  const [results, metadata] = await db.query(`
+    //   SELECT *
+    //   FROM t_order_mobile
+    //   ORDER BY t_order_mobile.t_tgl_transaksi DESC
+    // `);
+    //
+    // //  db.query(`
+    // //   DELETE FROM t_order_mobile
+    // // `)
+    //
+    //
+    //     res.json(results);
+    // } catch (error) {
+    //     handleSequelizeError(error, res)
+    // }
+
+    //get order by query cs_id and order by t_tgl_transaksiDESC
     try {
-     const [results, metadata] = await db.query(`
-      SELECT *
-      FROM t_order_mobile
-      ORDER BY t_order_mobile.t_tgl_transaksi DESC
-    `);
+        const { user_id } = req.query;
 
-    //  db.query(`
-    //   DELETE FROM t_order_mobile
-    // `)
+        //get user detail
+        const [user, metadata2] = await db.query(`
+            SELECT * FROM users WHERE id = '${user_id}'
+        `);
 
+        const [results, metadata] = await db.query(`
+          SELECT *
+          FROM t_order_mobile
+          WHERE t_order_mobile.t_id_cs = '${user[0].s_id_cs}'
+          ORDER BY t_order_mobile.t_tgl_transaksi DESC
+        `);
 
         res.json(results);
     } catch (error) {
         handleSequelizeError(error, res)
     }
+
 }
 
 export const updateStatusOrder = async (req, res) => {
@@ -1021,7 +1046,7 @@ export const handleHook = async (req, res) => {
             topic: req.body.data.session_id
         };
 
-        if(req.body.data.user.nickname.includes("CS")) {
+        if(req.body.event === "message:received") {
             newAdmin.messaging().send(message)
                 .then((response) => {
                     // Response is a message ID string.
@@ -1031,6 +1056,58 @@ export const handleHook = async (req, res) => {
                     console.log('Error sending message:', error);
                 });
         }
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+//get users
+export const getUsers = async (req, res) => {
+    try {
+        //where s_id_cs != null
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM users
+            WHERE s_id_cs is not null
+            LIMIT 10
+        `);
+
+        res.json({
+            results: results
+        });
+    } catch (e) {
+        handleSequelizeError(e, res)
+    }
+}
+
+//login
+export const login = async (req, res) => {
+    try {
+        const {username, password} = req.body;
+        const [results, metadata] = await db.query(`
+            SELECT *
+            FROM users
+            WHERE name = '${username}'
+        `);
+
+        if(results[0]) {
+            const match = await bcrypt.compare(password, results[0].password);
+            if(match) {
+                res.json({
+                    results: results[0]
+                });
+            } else {
+                res.json({
+                    results: "wrong password",
+                    data : results
+                });
+            }
+        } else {
+            res.json({
+                results: null
+            });
+        }
+
     } catch (e) {
         handleSequelizeError(e, res)
     }

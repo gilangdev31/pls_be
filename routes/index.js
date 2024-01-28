@@ -20,7 +20,7 @@ import {
     getStatusOder,
     getStatusOderByUserId,
     getTimer,
-    getTutorial, handleHook,
+    getTutorial, getUsers, handleHook, login,
     updateFilesClient,
     updateOrderChip,
     updateOrderStatus,
@@ -51,6 +51,9 @@ router.get('/api/v1/inchip', getInchip);
 router.get('/api/v1/status_order/:id', getStatusOder);
 router.get('/api/v1/status_order_by_user/:id', getStatusOderByUserId);
 router.post('/api/v1/hook', handleHook);
+
+router.get('/api/v1/users', getUsers);
+router.post('/api/v1/login', login);
 
 router.put('/api/v1/update_order_chip/:id', updateOrderChip);
 router.put('/api/v1/update_order_status/:id', updateOrderStatus);
