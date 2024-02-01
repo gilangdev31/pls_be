@@ -10,7 +10,6 @@ import { fileURLToPath } from 'url';
 import newAdmin from "../index.js";
 import admin from "firebase-admin";
 
-import bcrypt from "bcrypt";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1082,33 +1081,33 @@ export const getUsers = async (req, res) => {
 
 //login
 export const login = async (req, res) => {
-    try {
-        const {username, password} = req.body;
-        const [results, metadata] = await db.query(`
-            SELECT *
-            FROM users
-            WHERE name = '${username}'
-        `);
-
-        if(results[0]) {
-            const match = await bcrypt.compare(password, results[0].password);
-            if(match) {
-                res.json({
-                    results: results[0]
-                });
-            } else {
-                res.json({
-                    results: "wrong password",
-                    data : results
-                });
-            }
-        } else {
-            res.json({
-                results: null
-            });
-        }
-
-    } catch (e) {
-        handleSequelizeError(e, res)
-    }
+    // try {
+    //     const {username, password} = req.body;
+    //     const [results, metadata] = await db.query(`
+    //         SELECT *
+    //         FROM users
+    //         WHERE name = '${username}'
+    //     `);
+    //
+    //     if(results[0]) {
+    //         const match = await bcrypt.compare(password, results[0].password);
+    //         if(match) {
+    //             res.json({
+    //                 results: results[0]
+    //             });
+    //         } else {
+    //             res.json({
+    //                 results: "wrong password",
+    //                 data : results
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             results: null
+    //         });
+    //     }
+    //
+    // } catch (e) {
+    //     handleSequelizeError(e, res)
+    // }
 }
