@@ -719,7 +719,7 @@ export const getOrders = async (req, res) => {
           SELECT *
           FROM t_order_mobile
           WHERE t_order_mobile.t_id_cs = '${user[0].s_id_cs}'
-          ORDER BY t_order_mobile.t_tgl_transaksi DESC
+          ORDER BY t_order_mobile.created_at DESC
         `);
 
             res.json(results);
@@ -728,7 +728,7 @@ export const getOrders = async (req, res) => {
              const [results, metadata] = await db.query(`
               SELECT *
               FROM t_order_mobile
-              ORDER BY t_order_mobile.t_tgl_transaksi DESC
+              ORDER BY t_order_mobile.created_at DESC
             `);
 
             //  db.query(`
