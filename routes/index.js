@@ -20,7 +20,7 @@ import {
     getStatusOder,
     getStatusOderByUserId,
     getTimer,
-    getTutorial, getUsers, handleHook, login,
+    getTutorial, getUsers, handleHook, login, updateFilesBukti,
     updateFilesClient,
     updateOrderChip,
     updateOrderStatus,
@@ -38,6 +38,7 @@ router.get('/api/v1/timer', getTimer);
 router.get('/api/v1/cs', getCs);
 router.get('/api/v1/status_chat', getStatusChat);
 router.post('/api/v1/upload_files/:id',fileUploads, updateFilesClient);
+router.post('/api/v1/upload_bukti/:id',fileUploads, updateFilesBukti);
 
 router.get('/api/v1/files', getFilesClient);
 router.get('/api/v1/files/:id', getFilesClientByIdTransaksi);

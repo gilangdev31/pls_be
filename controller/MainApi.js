@@ -253,7 +253,7 @@ async function getNextCSFromApp() {
     const getCsFinal = listCSFinal.findIndex((element) => element.id === getCsFinalA.toString());
 
 
-    console.log("getCsFinalAGilangcccc11112"); //[ { count: '2' } ]
+    console.log("getCsFinalasas121231221121212"); //[ { count: '2' } ]
     console.log(getCsFinalA); // 1, 2, 3
     console.log("getCsFinalGilangcccc11112"); //[ { count: '2' } ]
     console.log(getCsFinal); // 1, 2, 3
@@ -264,6 +264,7 @@ async function getNextCSFromApp() {
 
 
     let nextCS = null;
+    let categoryIdFromApp = 1;
 
 
     if (countCS === 1) {
@@ -271,9 +272,9 @@ async function getNextCSFromApp() {
     } else {
         for (const [index, item] of listCSFinal.entries()) {
             const cs = parseInt(item.id, 10)
-            const isValid = item.s_status === true && item.s_kategori === 2;
+            const isValid = item.s_status === true && item.s_kategori === categoryIdFromApp;
 
-            if (getCsFinal === -1 || getCsFinal === countFinal) {
+            if (getCsFinal === -1 || getCsFinal === countFinal - 1) {
                 console.log("11111");
                 if(!isValid) {
                     console.log("notvalid");
@@ -291,7 +292,7 @@ async function getNextCSFromApp() {
                     console.log("notvalid333");
 
                     if(index === countFinal - 1) {
-                        const filterCondition = (item) => item.s_status === true && item.s_kategori === 2;
+                        const filterCondition = (item) => item.s_status === true && item.s_kategori === categoryIdFromApp;
                         const filteredList = listCSFinal.filter(filterCondition);
                         const firstMatchingElement = filteredList.find(() => true);
 
@@ -702,40 +703,45 @@ export const getStatusChat = async (req, res) => {
 
 
 export const getOrders = async (req, res) => {
-    // try {
-    //  const [results, metadata] = await db.query(`
-    //   SELECT *
-    //   FROM t_order_mobile
-    //   ORDER BY t_order_mobile.t_tgl_transaksi DESC
-    // `);
-    //
-    // //  db.query(`
-    // //   DELETE FROM t_order_mobile
-    // // `)
-    //
-    //
-    //     res.json(results);
-    // } catch (error) {
-    //     handleSequelizeError(error, res)
-    // }
+
 
     //get order by query cs_id and order by t_tgl_transaksiDESC
     try {
         const { user_id } = req.query;
 
         //get user detail
-        const [user, metadata2] = await db.query(`
+        if(user_id) {
+            const [user, metadata2] = await db.query(`
             SELECT * FROM users WHERE id = '${user_id}'
         `);
 
-        const [results, metadata] = await db.query(`
+            const [results, metadata] = await db.query(`
           SELECT *
           FROM t_order_mobile
           WHERE t_order_mobile.t_id_cs = '${user[0].s_id_cs}'
           ORDER BY t_order_mobile.t_tgl_transaksi DESC
         `);
 
-        res.json(results);
+            res.json(results);
+        } else {
+            try {
+             const [results, metadata] = await db.query(`
+              SELECT *
+              FROM t_order_mobile
+              ORDER BY t_order_mobile.t_tgl_transaksi DESC
+            `);
+
+            //  db.query(`
+            //   DELETE FROM t_order_mobile
+            // `)
+
+
+                res.json(results);
+            } catch (error) {
+                handleSequelizeError(error, res)
+            }
+        }
+
     } catch (error) {
         handleSequelizeError(error, res)
     }
@@ -799,6 +805,81 @@ export const updateFilesClient = async (req, res) => {
                 // All records inserted successfully
                 const [results, metadata] = await db.query(`
                     UPDATE t_order_mobile SET t_file_pulsa = '1' WHERE id = '${id}'
+                    RETURNING id
+                `);
+
+                res.status(200).json(
+                    {
+                        message: "Photos uploaded successfully",
+                        size: photos.length,
+                        photos: photos,
+                        update_t_order_mobile: results
+                    }
+                );
+            })
+            .catch(error => {
+                // Handle any errors that occurred during insertion
+                console.error('Error inserting photos:', error);
+                res.status(500).send('Internal Server Error');
+            });
+
+        // res.json({
+        //     message: "Setting Brand updated successfully",
+        // });
+    } catch (error) {
+        handleSequelizeError(error, res)
+    }
+}
+
+
+
+export const updateFilesBukti = async (req, res) => {
+    try {
+        const photos = req.files;
+        const { id } = req.params;
+        const utcDate = new Date();
+        const offset = 7 * 60 * 60 * 1000;
+        const utcPlus7Date = new Date(utcDate.getTime() + offset);
+        const currentTime = utcPlus7Date.toISOString();
+        // [
+        //     { name: 'id', type: 'bigint' },
+        //     { name: 't_id_transaksi', type: 'integer' },
+        //     { name: 't_nama', type: 'character varying' },
+        //     { name: 'created_by', type: 'integer' },
+        //     { name: 'created_at', type: 'timestamp without time zone' },
+        //     { name: 'updated_at', type: 'timestamp without time zone' }
+        // ]
+
+
+        const async1 = photos.map(photo => {
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            const pathName = photo.filename; // Replace with the actual pathName property from your file object
+            const t_nama = baseUrl + "/uploads/" + pathName;
+
+            console.log(`gilang ${t_nama}`);
+
+            // Insert a new record into the t_upload_order table with t_nama set to baseUrl + pathName
+            return db.query(`
+                INSERT INTO t_upload_proses (
+                    t_id_transaksi,
+                    t_nama,
+                    created_at,
+                    updated_at,
+                    created_by
+                ) VALUES (
+                    '${id}',
+                    '${t_nama}',
+                    '${currentTime}',
+                    '${currentTime}',
+                    '-1'
+                )
+            `);
+        })
+        Promise.all([async1])
+            .then(async () => {
+                // All records inserted successfully
+                const [results, metadata] = await db.query(`
+                    UPDATE t_order_mobile SET t_file_pembayaran = '1', done_time = '${currentTime}', is_done = 'true' WHERE id = '${id}'
                     RETURNING id
                 `);
 
