@@ -879,7 +879,7 @@ export const updateFilesBukti = async (req, res) => {
             .then(async () => {
                 // All records inserted successfully
                 const [results, metadata] = await db.query(`
-                    UPDATE t_order_mobile SET t_file_pembayaran = '1', done_time = '${currentTime}', is_done = 'true' WHERE id = '${id}'
+                    UPDATE t_order_mobile SET t_file_pembayaran = '1', done_time = '${currentTime}', is_done = 'true', is_success = 'true' WHERE id = '${id}'
                     RETURNING id
                 `);
 
