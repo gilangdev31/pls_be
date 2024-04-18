@@ -163,13 +163,13 @@ async function getNextCSChat() {
     const getCsFinal = listCSFinal.findIndex((element) => element.id === getCsFinalA.toString());
 
 
-    console.log("getCsFinalAGilangcccc11112"); //[ { count: '2' } ]
+    console.log("getCsFinalAGilangcccc111121212123"); //[ { count: '2' } ]
     console.log(getCsFinalA); // 1, 2, 3
-    console.log("getCsFinalGilangcccc11112"); //[ { count: '2' } ]
+    console.log("getCsFinalG1121212123"); //[ { count: '2' } ]
     console.log(getCsFinal); // 1, 2, 3
-    console.log("countFinalGilang8xxx12"); //[ { count: '2' } ]
+    console.log("countFinalGila1121212123"); //[ { count: '2' } ]
     console.log(countFinal); // 1, 2, 3
-    console.log("listCSFinalGilang8xxx12"); //[ { id: '1' }, { id: '2' }, { id: '3'
+    console.log("listCSFinalGil1121212123"); //[ { id: '1' }, { id: '2' }, { id: '3'
     console.log(listCSFinal); // 1, 2, 3
 
 
@@ -183,7 +183,7 @@ async function getNextCSChat() {
             const cs = parseInt(item.id, 10)
             const isValid = item.s_status === true && item.s_kategori === 1;
 
-            if (getCsFinalA === -1 || getCsFinalA === countFinal) {
+            if (getCsFinalA === -1 || getCsFinal === (countFinal -1)) { //getCsFinalA === countFinal) {
                 console.log("11111");
                 if(!isValid) {
                     console.log("notvalid");
